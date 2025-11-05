@@ -78,41 +78,59 @@ function setupMobileMenu() {
 // Função para exibir detalhes das aulas
 function setupAulaDetails() {
     const detailButtons = document.querySelectorAll('.btn-details');
-    const closeButtons = document.querySelectorAll('.btn-close');
+    const closeButtons = document.querySelectorAll('.btn-close, .details-close');
     
-    detailButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const target = this.getAttribute('data-target');
-            const detailsElement = document.getElementById(`${target}-details`);
-            
-            if (detailsElement) {
-                detailsElement.classList.add('active');
-                document.body.style.overflow = 'hidden'; // Impedir rolagem do body
-            }
-        });
-    });
+    // Função auxiliar para fechar o modal
+    function closeModal(target) {
+        const detailsElement = document.getElementById(`${target}-details`);
+        if (detailsElement) {
+            detailsElement.classList.remove('active');
+            document.body.style.overflow = ''; // Restaurar rolagem do body
+        }
+    }
     
+    // Função auxiliar para abrir o modal
+    function openModal(target) {
+        const detailsElement = document.getElementById(`${target}-details`);
+        if (detailsElement) {
+            detailsElement.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Impedir rolagem do body
+        }
+    }
+    
+    // Ação do botão "Ver Detalhes" removida
+    
+    // Fechar modal ao clicar em qualquer botão de fechar
     closeButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             const target = this.getAttribute('data-target');
-            const detailsElement = document.getElementById(`${target}-details`);
-            
-            if (detailsElement) {
-                detailsElement.classList.remove('active');
-                document.body.style.overflow = ''; // Restaurar rolagem do body
-            }
+            closeModal(target);
         });
     });
     
-    // Fechar ao clicar fora do conteúdo
+    // Fechar ao clicar fora do conteúdo (no overlay)
     const detailsElements = document.querySelectorAll('.aula-details');
     detailsElements.forEach(element => {
         element.addEventListener('click', function(e) {
+            // Fechar apenas se clicar diretamente no overlay (não no conteúdo)
             if (e.target === this) {
-                this.classList.remove('active');
-                document.body.style.overflow = '';
+                const target = this.id.replace('-details', '');
+                closeModal(target);
             }
         });
+    });
+    
+    // Fechar modal com a tecla ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const activeModal = document.querySelector('.aula-details.active');
+            if (activeModal) {
+                const target = activeModal.id.replace('-details', '');
+                closeModal(target);
+            }
+        }
     });
 }
 
